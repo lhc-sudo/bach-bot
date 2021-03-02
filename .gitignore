@@ -1,0 +1,5 @@
+# .json data for privacy and saving storage space
+*.json
+
+# personal IDE settings
+.idea/
