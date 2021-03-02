@@ -18,8 +18,10 @@ with open('/home/pi/redditBot/opted_out.json', 'r') as o:
 start_len = len(read_posts)
 start_opts = len(opted_out)
 
+
 def text_search(content1, content2, post_id):  # finds the BWV number in comments/posts
-    BWV = re.findall('BWV[\d]{1,4}[a-d]?|BWV[\s][\d]{1,4}[a-d]?', str(content1) + str(content2), re.IGNORECASE)
+    BWV = re.findall(r'BWV[\d]{1,4}[a-d]?|BWV[\s][\d]{1,4}[a-d]?', str(content1) + str(content2), re.IGNORECASE)
+    BWV = list(dict.fromkeys(BWV))  # removes duplicates from list by converting to dict and back
     if BWV:
         return {'id': post_id, 'BWV': BWV}
 
@@ -39,6 +41,25 @@ def obj_reply(r_object, BWV):  # replies to comments given a comment/post object
     r_object.reply(message)
 
 
+inbox = reddit.inbox
+for mention in inbox.mentions(limit=25):  # checks for mentions
+    parent_id = mention.context.split('/')[4]  # splicing the link find the ID is painful
+    text_out = text_search(mention.body, '', parent_id + '/' + mention.id)
+    parent_submission = reddit.submission(parent_id)
+    try:
+        parent_out = text_search(parent_submission.title, parent_submission.body, parent_submission.id)
+    except AttributeError:  # if the submission has no body, PRAW will return an AttributeError, so pass an empty string
+        parent_out = text_search(parent_submission.title, '', parent_submission.id)
+    if parent_id not in [post_id['id'] for post_id in read_posts]:  # once again check if replied
+        if text_out is not None:
+            obj_reply(mention, text_out)
+            read_posts.append(text_out['BWV'])
+        if parent_out is not None:
+            obj_reply(mention, parent_out)
+            read_posts.append(parent_out['BWV'])
+for reply in inbox.comment_replies():  # checks for opt-outs
+    if reply.body == "!optout" and reply.author.name not in opted_out:
+        opted_out.append(reply.author.name)
 for sub in sub_list:  # scans subs specified
     for submission in reddit.subreddit(sub).new(limit=25):
         comments = submission.comments
@@ -61,26 +82,7 @@ for sub in sub_list:  # scans subs specified
             if comment_BWV is not None and combined_id not in [post_id['id'] for post_id in read_posts] and author not in opted_out:
                 read_posts.append({'id': submission.id + '/' + comment.id, 'BWV': comment_BWV['BWV']})
                 obj_reply(comment, comment_BWV)  # checks if unreplied and not opted-out
-unread_messages = []
-inbox = reddit.inbox
-for mention in inbox.mentions(limit=25):  # checks for mentions
-    parent_id = mention.context.split('/')[4]  # splicing the link find the ID is painful
-    text_out = text_search(mention.body, '', parent_id + '/' + mention.id)
-    parent_submission = reddit.submission(parent_id)
-    try:
-        parent_out = text_search(parent_submission.title, parent_submission.body, parent_submission.id)
-    except AttributeError:  # if the submission has no body, PRAW will return an AttributeError, so pass an empty string
-        parent_out = text_search(parent_submission.title, '', parent_submission.id)
-    if parent_id not in [post_id['id'] for post_id in read_posts]:  # once again check if replied
-        if text_out is not None:
-            obj_reply(mention, text_out)
-            read_posts.append(text_out['BWV'])
-        if parent_out is not None:
-            obj_reply(mention, parent_out)
-            read_posts.append(parent_out['BWV'])
-for reply in inbox.comment_replies():  # checks for opt-outs
-    if reply.body == "!optout" and reply.author.name not in opted_out:
-        opted_out.append(reply.author.name)
+
 print('Done. New replies:' + str(len(read_posts) - start_len))  # for confirmation during debugs
 print('Done. New optouts:' + str(len(opted_out) - start_opts))
 
@@ -91,4 +93,3 @@ with open('/home/pi/redditBot/replied.json', 'w') as f:
 with open('/home/pi/redditBot/opted_out.json', 'w') as o:
     json.dump(opted_out, o, indent=4)
     o.close()
-
