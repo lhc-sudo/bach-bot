@@ -1,5 +1,4 @@
 # .json data for privacy and saving storage space
-opted_out.json
-replied.json
+*.json
 # personal IDE settings
 .idea/
