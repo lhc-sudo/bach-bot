@@ -20,7 +20,7 @@ start_opts = len(opted_out)
 
 
 def text_search(content1, content2, post_id):  # finds the BWV number in comments/posts
-    BWV = re.findall(r'BWV[\d]{1,4}[a-d]?|BWV[\s][\d]{1,4}[a-d]?', str(content1) + str(content2), re.IGNORECASE)
+    BWV = re.findall(r'BWV *\d{1,4}[a-d]?', str(content1) + str(content2), re.IGNORECASE)
     BWV = list(dict.fromkeys(BWV))  # removes duplicates from list by converting to dict and back
     if BWV:
         return {'id': post_id, 'BWV': BWV}
@@ -36,7 +36,7 @@ def obj_reply(r_object, BWV):  # replies to comments given a comment/post object
     message = ''
     for i in range(len(BWV['BWV'])):
         message += f'Here is your recording of {BWV["BWV"][i]}:\n\n[{yt_results[i]["videos"][0]["title"]}](https://youtube.com{yt_results[i]["videos"][0]["url_suffix"]})\n\n'
-    message += '---\n\n^(Beep Boop. I\'m a bot. Summon me with u/Reddit-Bach-Bot.)\n\n'
+    message += '---\n\n^(Beep Boop. I\'m a bot - here\'s my [source](https://github.com/lhc-sudo/bach-bot). Summon me with u/Reddit-Bach-Bot.)\n\n'
     message += '^(To opt out of replies to posts and comments, reply to this comment with "!optout".)'
     r_object.reply(message)
 
