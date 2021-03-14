@@ -27,7 +27,7 @@ def text_search(content1, content2, post_id):  # finds the BWV number in comment
 
 
 def yt_search(queries):  # searches on Youtube, and say thanks to u/gerubach for the videos
-    results = [YoutubeSearch(query + ' gerubach', max_results=1).to_json() for query in queries]
+    results = [YoutubeSearch('"' + query + '"' + ' gerubach', max_results=1).to_json() for query in queries]
     return [json.loads(str(result)) for result in results]
 
 
