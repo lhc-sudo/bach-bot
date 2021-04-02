@@ -36,7 +36,7 @@ def obj_reply(r_object, BWV):  # replies to comments given a comment/post object
     message = ''
     for i in range(len(BWV['BWV'])):
         message += f'Here is your recording of {BWV["BWV"][i]}:\n\n[{yt_results[i]["videos"][0]["title"]}](https://youtube.com{yt_results[i]["videos"][0]["url_suffix"]})\n\n'
-    message += '---\n\n^(Beep Boop. I\'m a bot - here\'s my [source](https://github.com/lhc-sudo/bach-bot). Summon me with u/Reddit-Bach-Bot.)\n\n'
+    message += '---\n\n^(Beep Boop. I\'m a bot - here\'s my) ^[source](https://github.com/lhc-sudo/bach-bot). ^(Summon me with u/Reddit-Bach-Bot.)\n\n'
     message += '^(To opt out of replies to posts and comments, reply to this comment with "!optout".)'
     r_object.reply(message)
 
