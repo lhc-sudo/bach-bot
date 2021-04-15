@@ -20,7 +20,7 @@ start_opts = len(opted_out)
 
 
 def text_search(content1, content2, post_id):  # finds the BWV number in comments/posts
-    BWV = re.findall(r'BWV *\d{1,4}[a-z]?', str(content1) + str(content2), re.IGNORECASE)
+    BWV = re.findall(r'BWV *\d{1,4}[a-z]?', str(content1) + " " + str(content2), re.IGNORECASE)
     BWV = list(dict.fromkeys(BWV))  # removes duplicates from list by converting to dict and back
     if BWV:
         return {'id': post_id, 'BWV': BWV}
@@ -84,7 +84,7 @@ for sub in sub_list:  # scans subs specified
                 obj_reply(comment, comment_BWV)  # checks if unreplied and not opted-out
 
 print('Done. New replies:' + str(len(read_posts) - start_len))  # for confirmation during debugs
-print('Done. New optouts:' + str(len(opted_out) - start_opts))
+print('      New optouts:' + str(len(opted_out) - start_opts))
 
 with open('/home/pi/redditBot/replied.json', 'w') as f:
     json.dump(read_posts, f, indent=4)
