@@ -20,7 +20,9 @@ start_opts = len(opted_out)
 
 
 def text_search(content1, content2, post_id):  # finds the BWV number in comments/posts
-    BWV = re.findall(r'BWV *\d{1,4}[a-z]?', str(content1) + " " + str(content2), re.IGNORECASE)
+    BWV = re.findall(r'BWV *(\d{1,4}[a-z]?)', str(content1) + " " + str(content2), re.IGNORECASE)
+    for i in range(len(BWV)):
+        BWV[i] = "BWV " + BWV[i]
     BWV = list(dict.fromkeys(BWV))  # removes duplicates from list by converting to dict and back
     if BWV:
         return {'id': post_id, 'BWV': BWV}
