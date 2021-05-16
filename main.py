@@ -46,7 +46,7 @@ def obj_reply(r_object, BWV):  # replies to comments given a comment/post object
     for i in BWV_to_pop:  # sooo many for loops
         BWV['BWV'].pop(i)
     message = ''
-    if len(BWV['BWV']):
+    if len(BWV['BWV']) > 0:
         for i in range(len(BWV['BWV'])):
             message += f'Here is your recording of {BWV["BWV"][i]}:\n\n[{yt_results[i]["videos"][0]["title"]}](https://youtube.com{yt_results[i]["videos"][0]["url_suffix"]})\n\n'
         message += '---\n\n^(Beep Boop. I\'m a bot - here\'s my) ^[source](https://github.com/lhc-sudo/bach-bot). ^(Summon me with u/Reddit-Bach-Bot.)\n\n'
