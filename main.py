@@ -9,7 +9,6 @@ sub_list = ['bach', 'baroque', 'classicalmusic']  # subs to scan
 with open('/home/pi/redditBot/replied.json', 'r') as f:
     read_posts = json.load(f)
     f.close()
-comments_to_reply = []
 
 with open('/home/pi/redditBot/opted_out.json', 'r') as o:
     opted_out = json.load(o)
@@ -20,12 +19,13 @@ start_opts = len(opted_out)
 
 
 def text_search(content1, content2, post_id):  # finds the BWV number in comments/posts
-    BWV = re.findall(r'BWV *(\d{1,4}[a-z]?)', str(content1) + " " + str(content2), re.IGNORECASE)
+    BWV = re.findall(r'BWV *(\d{1,4}[a-z]?)', str(content1) + ' ' + str(content2), re.IGNORECASE)
+    links = re.findall(r'[0-9A-Za-z_-]{10}[048AEIMQUYcgkosw]', str(content1) + ' ' + str(content2))
     for i in range(len(BWV)):
-        BWV[i] = "BWV " + BWV[i]
+        BWV[i] = 'BWV ' + BWV[i]
     BWV = list(dict.fromkeys(BWV))  # removes duplicates from list by converting to dict and back
     if BWV:
-        return {'id': post_id, 'BWV': BWV}
+        return {'id': post_id, 'BWV': BWV, 'links': links}
 
 
 def yt_search(queries):  # searches on Youtube, and say thanks to u/gerubach for the videos
@@ -35,12 +35,23 @@ def yt_search(queries):  # searches on Youtube, and say thanks to u/gerubach for
 
 def obj_reply(r_object, BWV):  # replies to comments given a comment/post object and a BWV number
     yt_results = yt_search(BWV['BWV'])
+    yt_to_pop = []
+    BWV_to_pop = []
+    for i in range(len(yt_results)):
+        if '/watch?v=' + BWV['links'][i] in yt_results[i]['videos'][0]['url_suffix']:
+            yt_to_pop.append(i)
+            BWV_to_pop.append(i)  # if OP already linked the same recording, don't reply with another link
+    for i in yt_to_pop:
+        yt_results.pop(i)
+    for i in BWV_to_pop:  # sooo many for loops
+        BWV['BWV'].pop(i)
     message = ''
-    for i in range(len(BWV['BWV'])):
-        message += f'Here is your recording of {BWV["BWV"][i]}:\n\n[{yt_results[i]["videos"][0]["title"]}](https://youtube.com{yt_results[i]["videos"][0]["url_suffix"]})\n\n'
-    message += '---\n\n^(Beep Boop. I\'m a bot - here\'s my) ^[source](https://github.com/lhc-sudo/bach-bot). ^(Summon me with u/Reddit-Bach-Bot.)\n\n'
-    message += '^(To opt out of replies to posts and comments, reply to this comment with "!optout".)'
-    r_object.reply(message)
+    if len(BWV['BWV']) > 0:
+        for i in range(len(BWV['BWV'])):
+            message += f'Here is your recording of {BWV["BWV"][i]}:\n\n[{yt_results[i]["videos"][0]["title"]}](https://youtube.com{yt_results[i]["videos"][0]["url_suffix"]})\n\n'
+        message += '---\n\n^(Beep Boop. I\'m a bot - here\'s my) ^[source](https://github.com/lhc-sudo/bach-bot). ^(Summon me with u/Reddit-Bach-Bot.)\n\n'
+        message += '^(To opt out of replies to posts and comments, reply to this comment with "!optout".)'
+        r_object.reply(message)
 
 
 inbox = reddit.inbox
