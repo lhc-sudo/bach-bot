@@ -38,9 +38,12 @@ def obj_reply(r_object, BWV):  # replies to comments given a comment/post object
     yt_to_pop = []
     BWV_to_pop = []
     for i in range(len(yt_results)):
-        if '/watch?v=' + BWV['links'][i] in yt_results[i]['videos'][0]['url_suffix']:
-            yt_to_pop.append(i)
-            BWV_to_pop.append(i)  # if OP already linked the same recording, don't reply with another link
+        try:
+            if '/watch?v=' + BWV['links'][i] in yt_results[i]['videos'][0]['url_suffix']:
+                yt_to_pop.append(i)
+                BWV_to_pop.append(i)  # if OP already linked the same recording, don't reply with another link
+        except IndexError:
+            break
     for i in yt_to_pop:
         yt_results.pop(i)
     for i in BWV_to_pop:  # sooo many for loops
