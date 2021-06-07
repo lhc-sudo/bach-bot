@@ -4,7 +4,7 @@ import praw
 from youtube_search import YoutubeSearch
 
 reddit = praw.Reddit('BACHBOT', user_agent='Bach-Bot')  # PRAW init
-sub_list = ['bach', 'baroque', 'classicalmusic']  # subs to scan
+sub_list = ['bach', 'baroque']  # subs to scan
 
 with open('/home/pi/redditBot/replied.json', 'r') as f:
     read_posts = json.load(f)
